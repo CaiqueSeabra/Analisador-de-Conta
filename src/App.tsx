@@ -135,8 +135,8 @@ export default function App() {
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 1600;
-          const MAX_HEIGHT = 1600;
+          const MAX_WIDTH = 1024;
+          const MAX_HEIGHT = 1024;
           let width = img.width;
           let height = img.height;
 
@@ -157,8 +157,8 @@ export default function App() {
           const ctx = canvas.getContext('2d');
           ctx?.drawImage(img, 0, 0, width, height);
           
-          // Comprime a imagem para JPEG com 70% de qualidade para acelerar o upload e processamento
-          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+          // Comprime a imagem para JPEG com 60% de qualidade para acelerar o upload e processamento
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.6);
           setImageSrc(compressedDataUrl);
           setResult(null); // Reset results on new image
         };
@@ -293,19 +293,16 @@ Gerado por Analisador de Conta Pro.`;
     
     const ai = new GoogleGenAI({ apiKey: apiKey });
     
-    const prompt = `Você é um sistema avançado de auditoria de faturas de energia elétrica brasileiras de nível PREMIUM/PRO. 
-Analise esta imagem e extraia o MÁXIMO de detalhes técnicos e financeiros.
-Identifique a composição da tarifa (TUSD e TE), impostos (ICMS, PIS, COFINS), adicionais de bandeira e dados de faturamento.
-MUITO IMPORTANTE: Localize o quadro de "Histórico de Consumo" na conta. Extraia os dados dos 3 meses imediatamente anteriores ao mês atual faturado.
-Calcule a média de consumo (kWh) desses 3 meses.
-Crie uma 'analiseComparativa' detalhada dizendo o que melhorou e o que piorou em relação a essa média.
-Além disso, gere métricas avançadas:
-- variacaoPercentual: variação % do mês atual em relação ao mês anterior (negativo se caiu).
-- projecaoProximoMes: estimativa de consumo para o próximo mês baseado na tendência.
-- custoDiario: valor total dividido pelos dias faturados.
-- anomaliasDetectadas: liste possíveis anomalias (ex: "Aumento súbito de 30% no consumo", "Bandeira vermelha acionada", etc). Se não houver, liste "Nenhuma anomalia grave detectada".
-Baseie-se APENAS em dados reais e exatos extraídos da fatura. Não faça suposições ou estimativas sobre os aparelhos da casa.
-Retorne ESTRITAMENTE no formato JSON solicitado.`;
+    const prompt = `Extraia dados desta fatura de energia brasileira. Seja rápido e direto.
+Localize o "Histórico de Consumo" e extraia os 3 meses anteriores.
+Calcule a média desses 3 meses.
+Gere uma 'analiseComparativa' CURTA e DIRETA.
+Gere métricas:
+- variacaoPercentual: variação % do mês atual vs anterior.
+- projecaoProximoMes: estimativa baseada na tendência.
+- custoDiario: valor total / dias.
+- anomaliasDetectadas: liste anomalias graves de forma CURTA.
+Retorne JSON.`;
 
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
