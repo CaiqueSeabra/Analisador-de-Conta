@@ -430,7 +430,25 @@ Retorne ESTRITAMENTE no formato JSON solicitado.`;
       }, 100);
     } catch (erro: any) {
       console.error(erro);
-      alert(erro.message || 'Ocorreu um erro na análise. Tente novamente com uma imagem mais nítida.');
+      
+      let mensagemErro = 'Ocorreu um erro na análise. Tente novamente com uma imagem mais nítida.';
+      
+      // Verifica se o erro é um JSON (como o erro de cota do Gemini)
+      try {
+        const errorStr = erro.message || '';
+        if (errorStr.includes('429') || errorStr.includes('RESOURCE_EXHAUSTED') || errorStr.includes('quota')) {
+          mensagemErro = '⏳ Muitas análises feitas rapidamente! O limite gratuito do Google foi atingido. Por favor, aguarde 1 minuto e tente novamente.';
+        } else if (errorStr.startsWith('{')) {
+          const parsedError = JSON.parse(errorStr);
+          if (parsedError.error?.status === 'RESOURCE_EXHAUSTED') {
+            mensagemErro = '⏳ Muitas análises feitas rapidamente! O limite gratuito do Google foi atingido. Por favor, aguarde 1 minuto e tente novamente.';
+          }
+        }
+      } catch (e) {
+        // Ignora erro de parse
+      }
+
+      alert(mensagemErro);
     } finally {
       setIsAnalyzing(false);
     }
