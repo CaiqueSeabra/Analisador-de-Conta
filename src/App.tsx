@@ -440,7 +440,7 @@ Retorne ESTRITAMENTE no formato JSON solicitado.`;
           mensagemErro = '⏳ Muitas análises feitas rapidamente! O limite gratuito do Google foi atingido. Por favor, aguarde 1 minuto e tente novamente.';
         } else if (errorStr.startsWith('{')) {
           const parsedError = JSON.parse(errorStr);
-          if (parsedError.error?.status === 'RESOURCE_EXHAUSTED') {
+          if (parsedError.error?.status === 'RESOURCE_EXHAUSTED' || parsedError.error?.code === 429) {
             mensagemErro = '⏳ Muitas análises feitas rapidamente! O limite gratuito do Google foi atingido. Por favor, aguarde 1 minuto e tente novamente.';
           }
         }
