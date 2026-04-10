@@ -71,6 +71,14 @@ interface AnalysisResult {
   anomaliasDetectadas: string[];
 }
 
+declare global {
+  interface Window {
+    AppInventor?: {
+      setWebViewString: (text: string) => void;
+    };
+  }
+}
+
 export default function App() {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string>('');
@@ -189,19 +197,28 @@ ${result.analiseComparativa}
 ${result.anomaliasDetectadas.length > 0 ? `🚨 *ANOMALIAS DETECTADAS*\n${result.anomaliasDetectadas.map(a => `• ${a}`).join('\n')}\n` : ''}
 Gerado por Analisador de Conta Pro.`;
 
+    // 1. Integração perfeita com o Kodular
+    if (window.AppInventor) {
+      window.AppInventor.setWebViewString(text);
+      return;
+    }
+
+    // 2. Navegador comum (Chrome, Safari)
     if (navigator.share) {
       try {
         await navigator.share({
           title: 'Minha Análise de Conta de Luz',
           text: text,
         });
+        return;
       } catch (err) {
         console.log('Erro ao compartilhar', err);
       }
-    } else {
-      navigator.clipboard.writeText(text);
-      alert('Resumo completo copiado para a área de transferência!');
-    }
+    } 
+    
+    // 3. Último caso (se tudo falhar)
+    navigator.clipboard.writeText(text);
+    alert('Resumo completo copiado para a área de transferência!');
   };
 
   const getIncentiveMessage = (variacao: number) => {
