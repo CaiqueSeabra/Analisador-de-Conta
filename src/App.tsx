@@ -389,23 +389,23 @@ Retorne ESTRITAMENTE no formato JSON solicitado.`;
         detalhesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }, 100);
     } catch (erro: any) {
-      console.error(erro);
+      console.error("Erro completo da API:", erro);
       
       let mensagemErro = 'Ocorreu um erro na análise. Tente novamente com uma imagem mais nítida.';
       
       // Verifica se o erro é um JSON (como o erro de cota do Gemini)
       try {
-        const errorStr = erro.message || '';
+        const errorStr = erro.message || String(erro);
+        
+        // Se for erro de limite de cota
         if (errorStr.includes('429') || errorStr.includes('RESOURCE_EXHAUSTED') || errorStr.includes('quota')) {
           mensagemErro = '⏳ Muitas análises feitas rapidamente! O limite gratuito do Google foi atingido. Por favor, aguarde 1 minuto e tente novamente.';
-        } else if (errorStr.startsWith('{')) {
-          const parsedError = JSON.parse(errorStr);
-          if (parsedError.error?.status === 'RESOURCE_EXHAUSTED' || parsedError.error?.code === 429) {
-            mensagemErro = '⏳ Muitas análises feitas rapidamente! O limite gratuito do Google foi atingido. Por favor, aguarde 1 minuto e tente novamente.';
-          }
+        } else {
+          // Mostra o erro real para ajudar a debugar
+          mensagemErro = `Erro na análise: ${errorStr}`;
         }
-      } catch (e) {
-        // Ignora erro de parse
+      } catch (parseError) {
+        mensagemErro = `Erro desconhecido: ${String(erro)}`;
       }
 
       alert(mensagemErro);
